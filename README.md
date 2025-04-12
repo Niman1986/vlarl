@@ -51,7 +51,7 @@ This repository is released under the Apache-2.0 license.
 
 ## 🙏 Acknowledgement
 
-Our code is built upon [open-instruct](https://github.com/allenai/open-instruct), [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF), [verl](https://github.com/volcengine/verl), [splatter-image](https://github.com/szymanowiczs/splatter-image). We thank all these authors for their nicely open sourced code and their great contributions to the community.
+Our code is built upon [open-instruct](https://github.com/allenai/open-instruct), [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF) and [verl](https://github.com/volcengine/verl). We thank all these authors for their nicely open sourced code and their great contributions to the community.
 
 ## 🥰 Citation
 If you find this repository helpful, please consider citing:

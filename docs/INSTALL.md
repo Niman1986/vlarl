@@ -19,6 +19,9 @@ pip install -e .
 # for LIBERO simulation
 pip install -r experiments/robot/libero/libero_requirements.txt
 
+# [vLLM]
+cd prismatic/extern/vllm; pip install -e .; cd ../../..
+
 # Install Flash Attention 2 for training (https://github.com/Dao-AILab/flash-attention)
 #   =>> If you run into difficulty, try `pip cache remove flash_attn` first
 pip install packaging ninja
@@ -26,13 +29,7 @@ ninja --version; echo $?  # Verify Ninja --> should return exit code "0"
 pip install "flash-attn==2.5.5" --no-build-isolation
 # NOTE: if the building process is slow, please check https://github.com/mjun0812/flash-attention-prebuild-wheels for prebuilt wheels.
 
-# Install other Python dependencies
-...
-
-# Set up Weights & Biases for experiment logging
-wandb login
-
-# LIBERO simulation
+# [Libero]
 git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git
 cd LIBERO
 pip install -e .
@@ -45,4 +42,7 @@ git lfs clone https://huggingface.co/openvla/openvla-7b-finetuned-libero-spatial
 # Download LIBERO SFT dataset
 mkdir -p data/; cd data/
 git lfs clone https://huggingface.co/datasets/openvla/modified_libero_rlds
+
+# Set up Weights & Biases for experiment logging
+wandb login
 ```

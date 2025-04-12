@@ -1,0 +1,16 @@
+### Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+### model
+model_name_or_path: ./MODEL/Qwen2-VL-2B-Instruct
+# adapter_name_or_path: ./checkpoints/libero_10_no_noops/prm/adapter
+adapter_name_or_path: ./checkpoints/libero_spatial_no_noops/prm/adapter
+template: qwen2_vl
+finetuning_type: lora
+trust_remote_code: true
+
+### export
+# export_dir: ./checkpoints/libero_10_no_noops/prm/root
+export_dir: ./checkpoints/libero_spatial_no_noops/prm/root
+export_size: 2
+export_device: cpu
+export_legacy_format: false

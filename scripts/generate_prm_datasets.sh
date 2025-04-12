@@ -1,0 +1,4 @@
+CUDA_VISIBLE_DEVICES=1 python scripts/generate_prm_dataset.py --dataset_name libero_10_no_noops
+CUDA_VISIBLE_DEVICES=1 python scripts/generate_prm_dataset.py --dataset_name libero_goal_no_noops
+CUDA_VISIBLE_DEVICES=1 python scripts/generate_prm_dataset.py --dataset_name libero_spatial_no_noops
+CUDA_VISIBLE_DEVICES=1 python scripts/generate_prm_dataset.py --dataset_name libero_object_no_noops

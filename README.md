@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![blog](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)](https://arxiv.org/abs/2406.09246)
+[![blog](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)](https://congruous-farmhouse-8db.notion.site/VLA-RL-Toward-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4)
 
 </div>
 

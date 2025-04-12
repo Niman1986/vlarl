@@ -17,9 +17,9 @@
 - 🚧 **Active Development**: Work in Progress, let's build it together.
 
 ## 📝 TODO
-- [] Support SERL-style Real-world RL
-- [] Support More Environments (e.g., Roboverse)
-- [] Support More VLAs
+- [ ] Support SERL-style Real-world RL
+- [ ] Support More Environments (e.g., Roboverse)
+- [ ] Support More VLAs
 
 ## 🛠️ Installation
 

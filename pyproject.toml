@@ -3,24 +3,28 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openvla"
+name = "vlarl"
 authors = [
-    {name = "Moo Jin Kim", email="moojink@stanford.edu"},
-    {name = "Karl Pertsch", email="pertsch@berkeley.edu"},
-    {name = "Siddharth Karamcheti", email="skaramcheti@cs.stanford.edu"},
+    {name = "Guanxing Lu"},
+    {name = "Yuheng Zhou"},
+    {name = "Haonan Jiang"},
+    {name = "Chubin Zhang"},
+    {name = "Zifeng Gao"},
+    {name = "Ziwei Wang"},
+    {name = "Yansong Tang"},
 ]
-description = "OpenVLA: Vision-Language-Action Models for Robotics"
+description = "VLA-RL: Toward Masterful and General Robotic Manipulation with Scalable Reinforcement Learning"
 version = "0.0.3"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["vision-language-actions models", "multimodal pretraining", "robot learning"]
+keywords = ["vision-language-action", "reinforcement learning", "robotic manipulation"]
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -43,11 +47,11 @@ dependencies = [
     "rich",
     "sentencepiece",
     "timm==0.9.10",
-    "tokenizers",     # Test it!!!
+    "tokenizers",
     #"torch==2.2.0",
     #"torchvision==0.17.0",
     #"torchaudio==2.2.0",
-    "transformers==4.48.2",   # Test it!!!
+    "transformers==4.48.2",
     "wandb",
     "tensorflow",
     "tensorflow_datasets",
@@ -76,9 +80,9 @@ sagemaker = [
 ]
 
 [project.urls]
-homepage = "https://github.com/openvla/openvla"
-repository = "https://github.com/openvla/openvla"
-documentation = "https://github.com/openvla/openvla"
+homepage = "https://github.com/vlarl/vlarl"
+repository = "https://github.com/vlarl/vlarl"
+documentation = "https://github.com/vlarl/vlarl"
 
 [tool.setuptools.packages.find]
 where = ["."]

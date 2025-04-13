@@ -28,7 +28,7 @@ import draccus
 import numpy as np
 import tqdm
 from libero.libero import benchmark
-from ppo.envs.libero_env_traj_wrappers import VLAEnv
+from ppo.envs.libero_env import VLAEnv
 from termcolor import cprint, colored
 import wandb
 import pprint

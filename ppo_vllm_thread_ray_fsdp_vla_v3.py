@@ -80,7 +80,7 @@ from ray.util.scheduling_strategies import PlacementGroupSchedulingStrategy
 from vllm import SamplingParams
 from rich.pretty import pprint
 from termcolor import cprint
-from ppo.envs.libero_env_traj_wrappers import VLAEnv
+from ppo.envs.libero_env import VLAEnv
 from ppo.models.critic import CriticVLA, CriticQwen, CriticFilm
 from ppo.models.prm_traj import DummyRM, QwenProcessRM
 from ppo.utils.util import TimingManager

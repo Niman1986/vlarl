@@ -1,3 +1,5 @@
+# Modified from https://github.com/Lifelong-Robot-Learning/LIBERO/blob/master/libero/libero/envs/venv.py
+
 import cloudpickle
 import ctypes
 import gym

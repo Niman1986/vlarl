@@ -22,7 +22,7 @@ import numpy as np
 import tqdm
 import time
 from libero.libero import benchmark
-from ppo.envs.libero_env_traj_wrappers import VLAEnv
+from ppo.envs.libero_env import VLAEnv
 from termcolor import cprint, colored
 import wandb
 import pprint
@@ -38,7 +38,7 @@ current_path = os.getcwd()
 print("Workspace:", current_path)
 
 from experiments.robot.libero.run_libero_eval_vllm import GenerateConfig
-from ppo.envs.libero_env_traj_wrappers import VLAEnv
+from ppo.envs.libero_env import VLAEnv
 from prismatic.models.backbones.llm.prompting import PurePromptBuilder, VicunaV15ChatPromptBuilder, QwenPromptBuilder
 from experiments.robot.openvla_utils import get_processor
 from experiments.robot.robot_utils import (

@@ -8,7 +8,7 @@
 
 ## 🌟 Highlights
 
-- 🎯 **Masterful & General Manipulation**: Improving VLAs with multi-task reinforcement learing.
+- 🎯 **Masterful & General Manipulation**: Improving VLAs with outcome-based multi-task reinforcement learing.
 
 - ⚡️ **Cutting-edge Architecture**: Built with Ray+vLLM+LoRA+FSDP, our codebase delivers both scalability and flexibility.
 

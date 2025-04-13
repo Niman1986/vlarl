@@ -76,7 +76,7 @@ from experiments.robot.robot_utils import (
     print_rich_single_line_metrics,
     print_rich_table,
 )
-from ppo.envs.libero_env_traj_wrappers import VLAEnv
+from ppo.envs.libero_env import VLAEnv
 from ppo.models.critic import CriticVLA
 from ppo.models.prm_traj import DummyRM, QwenProcessRM
 from ppo.utils.util import TimingManager

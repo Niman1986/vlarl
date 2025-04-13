@@ -19,7 +19,7 @@
 ## 📝 TODO
 - [ ] Support SERL-style Real-world RL
 - [ ] Support More Environments (e.g., Roboverse)
-- [ ] Support More VLAs
+- [ ] Support More VLAs (e.g., MiniVLA)
 
 ## 🛠️ Installation
 
@@ -59,7 +59,7 @@ If you find this repository helpful, please consider citing:
 ```
 @misc{lu2025vlarl,
   title={VLA-RL: Toward Masterful and General Robotic Manipulation with Scalable Reinforcement Learning},
-  author={Guanxing Lu, Yuheng Zhou, Haonan Jiang, Chubin Zhang, Zifeng Gao, Ziwei Wang and Yansong Tang},
+  author={Guanxing Lu, Yuheng Zhou, Haonan Jiang, Chubin Zhang, Zifeng Gao, Yansong Tang and Ziwei Wang},
   year={2025},
   howpublished={\url{https://congruous-farmhouse-8db.notion.site/VLA-RL-Toward-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4}},
   note={Notion Blog}

@@ -8,9 +8,9 @@
 
 ## 🌟 Highlights
 
-- 🎯 **Masterful & General Manipulation**: We present VLA-RL, an open-source solution advancing vision-language-action (VLA) models with reinforcement learning beyond imitation learning.
+- 🎯 **Masterful & General Manipulation**: Improving VLAs with multi-task reinforcement learing.
 
-- ⚡️ **Cutting-edge Architecture**: Built with ray+vllm+lora+fsdp, our codebase delivers both scalability and flexibility.
+- ⚡️ **Cutting-edge Architecture**: Built with Ray+vLLM+LoRA+FSDP, our codebase delivers both scalability and flexibility.
 
 - 📝 **Clean Implementation**: Following [cleanrl](https://github.com/vwxyzjn/cleanrl)'s philosophy, we provide a single-file implementation for easy reading and modification.
 
@@ -43,7 +43,7 @@ bash train_rl_vllm_ray_fsdp.sh 6,7 0,1,2,3,4,5,6,7,8,9
 
 ```bash
 # parallel evaluation with vectorized environment
-bash eval_vec.sh
+bash eval_vllm.sh
 ```
 
 ## 🏷️ License

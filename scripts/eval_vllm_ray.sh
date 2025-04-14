@@ -1,6 +1,9 @@
 #!/bin/bash
 
-POSTFIX=goal
+POSTFIX=spatial
+# POSTFIX=goal
+# POSTFIX=object
+# POSTFIX=10
 DATA_NAME=libero_${POSTFIX}
 DATA_ROOT=${DATA_NAME}_no_noops
 
@@ -11,6 +14,8 @@ MERGE=False
 
 SERVER_IP=195.26.233.70
 SERVER_PORT=28504
+
+GPUS=${1:-"0,1"}
 
 # 1. scp the model from the server
 # mkdir -p checkpoints/${DATA_ROOT}/root/${MODEL_PATH}
@@ -41,7 +46,7 @@ SERVER_PORT=28504
 # 3. Evaluate the merged model
 echo "Evaluating the merged model"
 # 2 GPUs, one for vLLM, one for env
-CUDA_VISIBLE_DEVICES=4,5 python experiments/robot/libero/run_libero_eval_vllm.py \
+CUDA_VISIBLE_DEVICES=$GPUS python experiments/robot/libero/run_libero_eval_vllm.py \
   --model_family openvla \
   --pretrained_checkpoint checkpoints/${DATA_ROOT}/root/${MODEL_PATH} \
   --task_suite_name ${DATA_NAME} \

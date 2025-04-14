@@ -78,7 +78,7 @@ from experiments.robot.robot_utils import (
 )
 from ppo.envs.libero_env import VLAEnv
 from ppo.models.critic import CriticVLA
-from ppo.models.prm_traj import DummyRM, QwenProcessRM
+from ppo.models.prm import DummyRM, QwenProcessRM
 from ppo.utils.util import TimingManager
 from ppo.utils.vllm_utils2 import create_vllm_engines, init_process_group
 from ppo.utils.ray_utils import ray_noset_visible_devices, get_physical_gpu_id

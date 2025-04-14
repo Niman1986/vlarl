@@ -8,7 +8,7 @@
 
 ## 🌟 Highlights
 
-- 🎯 **Masterful & General Manipulation**: Improving VLAs with outcome-based multi-task reinforcement learing.
+- 🎯 **General Manipulation**: Improving OpenVLA-7B with outcome-based multi-task reinforcement learing.
 
 - ⚡️ **Cutting-edge Architecture**: Built with Ray+vLLM+LoRA+FSDP, our codebase delivers both scalability and flexibility.
 
@@ -34,19 +34,20 @@ Before launching distributed training, please edit the script with the appropria
 ### 📈 Training
 
 ```bash
-# bash train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
+# bash scripts/train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
 # e.g., 
-bash train_rl_vllm_ray_fsdp.sh 6,7 0,1,2,3,4,5,6,7,8,9
+bash scripts/train_rl_vllm_ray_fsdp.sh 0,1 0,1,2,3,4,5,6,7,8,9
 ```
 
 ### 🧪 Evaluation
 
 ```bash
 # parallel evaluation with vectorized environment
-bash eval_vllm.sh
+bash scripts/eval_vllm_ray.sh 0,1
 ```
 
 ## 🏷️ License
+
 This repository is released under the Apache-2.0 license.
 
 ## 🙏 Acknowledgement

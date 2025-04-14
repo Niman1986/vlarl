@@ -1,4 +1,4 @@
-# VLA-RL: Toward Masterful and General Robotic Manipulation with Scalable Reinforcement Learning
+# VLA-RL: Towards Masterful and General Robotic Manipulation with Scalable Reinforcement Learning
 
 <div align="center">
 
@@ -60,10 +60,10 @@ If you find this repository helpful, please consider citing:
 
 ```
 @misc{lu2025vlarl,
-  title={VLA-RL: Toward Masterful and General Robotic Manipulation with Scalable Reinforcement Learning},
+  title={VLA-RL: Towards Masterful and General Robotic Manipulation with Scalable Reinforcement Learning},
   author={Guanxing Lu, Chubin Zhang, Haonan Jiang, Yuheng Zhou, Zifeng Gao, Yansong Tang and Ziwei Wang},
   year={2025},
-  howpublished={\url{https://congruous-farmhouse-8db.notion.site/VLA-RL-Toward-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4}},
+  howpublished={\url{https://congruous-farmhouse-8db.notion.site/VLA-RL-Towards-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4}},
   note={Notion Blog}
 }
 ```

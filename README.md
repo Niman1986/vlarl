@@ -55,12 +55,13 @@ This repository is released under the Apache-2.0 license.
 Our code is built upon [open-instruct](https://github.com/allenai/open-instruct), [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF), [verl](https://github.com/volcengine/verl) and [openvla](https://github.com/openvla/openvla). We thank all these authors for their nicely open sourced code and their great contributions to the community.
 
 ## 🥰 Citation
+
 If you find this repository helpful, please consider citing:
 
 ```
 @misc{lu2025vlarl,
   title={VLA-RL: Toward Masterful and General Robotic Manipulation with Scalable Reinforcement Learning},
-  author={Guanxing Lu, Yuheng Zhou, Haonan Jiang, Chubin Zhang, Zifeng Gao, Yansong Tang and Ziwei Wang},
+  author={Guanxing Lu, Chubin Zhang, Haonan Jiang, Yuheng Zhou, Zifeng Gao, Yansong Tang and Ziwei Wang},
   year={2025},
   howpublished={\url{https://congruous-farmhouse-8db.notion.site/VLA-RL-Toward-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4}},
   note={Notion Blog}

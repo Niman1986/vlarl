@@ -37,7 +37,7 @@ sys.path.append("../..")
 current_path = os.getcwd()
 print("Workspace:", current_path)
 
-from experiments.robot.libero.run_libero_eval_vllm import GenerateConfig
+from run_libero_eval_vllm import GenerateConfig
 from ppo.envs.libero_env import VLAEnv
 from prismatic.models.backbones.llm.prompting import PurePromptBuilder, VicunaV15ChatPromptBuilder, QwenPromptBuilder
 from experiments.robot.openvla_utils import get_processor

@@ -32,7 +32,7 @@ sys.path.append("../..")
 current_path = os.getcwd()
 print("Workspace:", current_path)
 
-from experiments.robot.libero.run_libero_eval_vllm import GenerateConfig
+from run_libero_eval_vllm import GenerateConfig
 from ppo.envs.libero_env import VLAEnv
 from ppo.utils.vllm_utils2 import create_vllm_engines
 from experiments.robot.robot_utils import set_seed_everywhere

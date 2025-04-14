@@ -1210,8 +1210,6 @@ class PolicyTrainerRayProcess(RayProcess):
                             context_length = query.shape[1] + self.max_image_tokens
 
                         # Get value estimates from the value model
-                        logger.info(f"{query.dtype=}")
-                        logger.info(f"{pixel_value.dtype=}")
                         start_time = time.time()
                         if args.use_value_model:
                             with timer.timer("value"):

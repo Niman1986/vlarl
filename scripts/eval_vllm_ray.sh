@@ -46,9 +46,9 @@ GPUS=${1:-"0,1"}
 # 3. Evaluate the merged model
 echo "Evaluating the merged model"
 # 2 GPUs, one for vLLM, one for env
-CUDA_VISIBLE_DEVICES=$GPUS python experiments/robot/libero/run_libero_eval_vllm.py \
+CUDA_VISIBLE_DEVICES=$GPUS python run_libero_eval_vllm.py \
   --model_family openvla \
-  --pretrained_checkpoint checkpoints/${DATA_ROOT}/root/${MODEL_PATH} \
+  --pretrained_checkpoint "MODEL/openvla-7b-finetuned-libero-${POSTFIX}" \
   --task_suite_name ${DATA_NAME} \
   --num_trials_per_task 50 \
   --num_tasks_per_suite 10 \

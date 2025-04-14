@@ -19,27 +19,25 @@ Usage:
 
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Union
-
+from queue import Empty, Queue
+from typing import Any, Callable, Iterator, List, Literal, Optional, Tuple, Union
 import draccus
 import numpy as np
 import tqdm
-import time
 from libero.libero import benchmark
-from ppo.envs.libero_env import VLAEnv
 from termcolor import cprint, colored
 import wandb
 import pprint
-import json
-import torch
-from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
-import imageio
-import cv2
 
 from prismatic.models.backbones.llm.prompting import PurePromptBuilder, VicunaV15ChatPromptBuilder, QwenPromptBuilder
-
+from ppo.envs.libero_env import VLAEnv
+from ppo.utils.vllm_utils2 import create_vllm_engines
+from vllm import SamplingParams
+import time
+import ray
+import threading
 
 # Append current directory so that interpreter can find experiments.robot
 sys.path.append("../..")
@@ -79,10 +77,32 @@ class GenerateConfig:
     #################################################################################################################
     # LIBERO environment-specific parameters
     #################################################################################################################
-    task_suite_name: str = "libero_spatial"          # Task suite. Options: libero_spatial, libero_object, libero_goal, libero_10, libero_90
-    num_steps_wait: int = 10                         # Number of steps to wait for objects to stabilize in sim
-    num_trials_per_task: int = 50                    # Number of rollouts per task
-    num_tasks_per_suite: int = 10                    # Number of tasks to evaluate
+    # Environment Parameters
+    task_suite_name: str = "libero_spatial"
+    """Task suite. Options: libero_spatial, libero_object, libero_goal, libero_10, libero_90"""
+    num_steps_wait: int = 10
+    """Number of steps to wait for objects to stabilize in sim"""
+    num_tasks_per_suite: int = 10
+    """Number of tasks per suite"""
+    num_trials_per_task: int = 50
+    """Number of rollouts per task"""
+    n_rollout_threads: int = 10
+    """Number of parallel vec environments"""
+    task_ids: Optional[List[int]] = None
+    """Task ids to run"""
+    max_env_length: int = 0
+    """0 for default libero length"""
+    env_gpu_id: int = 0
+    """GPU id for the vectorized environments"""
+    query_length: int = 64
+    """Length of the query"""
+    save_video: bool = False
+    """Whether to save videos"""
+    penalty_reward_value: float = 0.0
+    """Penalty reward value"""
+    non_stop_penalty: bool = False
+    """Whether to penalize responses that do not contain `stop_token_id`"""
+    verify_reward_value: float = 1.0
 
     #################################################################################################################
     # Utils
@@ -103,12 +123,37 @@ class GenerateConfig:
     load_adapter_checkpoint: Optional[str] = None    # Path to adapter checkpoint to load
     save_images: bool = False                        # Whether to save images besides videos
     
-    n_rollout_threads: int = 10
-    max_env_length: int = 0
-    save_video: bool = False
-    penalty_reward_value: float = 0.0
+    # generation config
+    response_length: int = 8
+    """the length of the response"""
+    stop_token_id: Optional[int] = None
+    """the truncation token id"""
+    min_response_length: int = 0
+    """stop only after this many tokens"""
+    temperature: float = 1.0
+    """the sampling temperature"""
+    verify_reward_value: float = 10.0
+    """the reward value for responses that do not contain `stop_token_id`"""
+    penalty_reward_value: float = -1.0
+    """the reward value for responses that do not contain `stop_token_id`"""
     non_stop_penalty: bool = False
-    verify_reward_value: float = 1.0
+    """whether to penalize responses that do not contain `stop_token_id`"""
+    number_envs_per_task: int = 1
+    """the number of samples to generate per prompt, useful for easy-star"""
+
+    # ray
+    vllm_num_engines: int = 1
+    """number of vLLM Engines, set to 0 to disable vLLM"""
+    vllm_tensor_parallel_size: int = 1
+    """tensor parallel size of vLLM Engine for multi-GPU inference"""
+    vllm_enforce_eager: bool = False
+    """whether to enforce eager mode for vLLM -- slow inference but needed for multi-node"""
+    vllm_sync_backend: str = "nccl"
+    """DeepSpeed -> vLLM weight sync backend"""
+    enable_prefix_caching: bool = False
+    """whether to enable prefix caching"""
+    gpu_memory_utilization: float = 0.9
+    """pre-allocated GPU memory utilization for vLLM"""
 
 
 @draccus.wrap()
@@ -124,8 +169,108 @@ def eval_libero(cfg: GenerateConfig) -> None:
     # [OpenVLA] Set action un-normalization key
     cfg.unnorm_key = cfg.task_suite_name
 
+    norm_stats = None
+    # if cfg.load_adapter_checkpoint is not None:
+    #     # with open(run_dir / "latest_checkpoint_step.txt", "r") as f:
+    #     #     resume_iteration = int(f.read())
+    #     # start_gradient_step_idx = resume_iteration + 1
+    #     # print(f"Resuming training from iteration {resume_iteration} ...")
+
+    #     dataset_statistics_path = os.path.join(cfg.load_adapter_checkpoint, "dataset_statistics.json")  # HACK: overwrite dataset_statistics
+    #     if os.path.isfile(dataset_statistics_path):
+    #         with open(dataset_statistics_path, "r") as f:
+    #             norm_stats = json.load(f)
+
     # Load model
-    model = get_model(cfg)
+    max_len = 256 + 50
+    vllm_engines = create_vllm_engines(
+        cfg.vllm_num_engines,
+        cfg.vllm_tensor_parallel_size,
+        cfg.vllm_enforce_eager,
+        cfg.pretrained_checkpoint,
+        revision=None,
+        seed=cfg.seed,
+        enable_prefix_caching=cfg.enable_prefix_caching,
+        max_model_len=max_len,
+        gpu_memory_utilization=cfg.gpu_memory_utilization,
+        # enable_lora=True if cfg.load_adapter_checkpoint is not None else False,
+        # norm_stats=norm_stats,
+    )
+    generation_config = SamplingParams(
+        temperature=cfg.temperature,    # for greedy sampling
+        max_tokens=cfg.response_length,
+        include_stop_str_in_output=False,
+        detokenize=False,
+        n=1,
+        seed=cfg.seed,
+        logprobs=1,
+    )
+    print(f"generation_config: {generation_config}")
+
+    # (Optional) Load processor
+    # processor = get_processor(cfg)
+    processor = None
+
+    def vllm_generate(
+            generation_config: SamplingParams,
+            response_ids_Q: Queue,
+            param_prompt_Q: Queue,
+        ):
+            llm = vllm_engines[0]
+            while True:
+                g_queries_list = param_prompt_Q.get()
+                if g_queries_list is None:
+                    break
+
+                pixel_values = g_queries_list["pixel_values"]
+                if processor is None:
+                    prompts = g_queries_list["prompts"]
+                    prompts = ["<PAD>" + prompt + "▁" for prompt in prompts]
+                    # print(f"🔥🔥🔥 prompts: {prompts}")
+                    llm_inputs = [
+                        {
+                            "prompt": prompt,
+                            "multi_modal_data": {"image": pixel_value},
+                        } for prompt, pixel_value in zip(prompts, pixel_values)
+                    ]
+                else:
+                    prompts = g_queries_list["prompts"]
+                    prompts = ["<PAD>" + prompt + "▁" for prompt in prompts]
+                    prompt_token_ids = processor.tokenizer(prompts, return_tensors="pt").input_ids
+                    print(f"🔥🔥🔥 prompt_token_ids: {prompt_token_ids}")
+                    llm_inputs = [
+                        {
+                            "prompt_token_ids": prompt_token_id,
+                            "multi_modal_data": {"image": pixel_value},
+                        } for prompt_token_id, pixel_value in zip(prompt_token_ids, pixel_values)
+                    ]
+
+                # generation_start_time = time.time()
+                actions, response_ids, response_logprobs = ray.get(
+                    llm.predict_action.remote(
+                        llm_inputs,
+                        sampling_params=generation_config, 
+                        use_tqdm=False,
+                        unnorm_key=cfg.unnorm_key,
+                        # lora_request=LoRARequest("vla_adapter", 1, cfg.load_adapter_checkpoint) if cfg.load_adapter_checkpoint is not None else None
+                    )
+                )
+                # print(f"{response_logprobs=}")
+                print(f"🔥🔥🔥 Action generation time: {time.time() - generation_start_time:.2f} seconds")
+                response_ids_Q.put(actions)
+
+    response_ids_Q = Queue(maxsize=1)
+    param_prompt_Q = Queue(maxsize=1)
+    thread = threading.Thread(
+                target=vllm_generate,
+                args=(
+                    generation_config,
+                    response_ids_Q,
+                    param_prompt_Q,
+                ),
+            )
+    thread.start()
+    print("vllm generate thread starts")
 
     # Load prompt builder
     if 'qwen' in cfg.pretrained_checkpoint:
@@ -135,38 +280,6 @@ def eval_libero(cfg: GenerateConfig) -> None:
         prompt_builder_fn = VicunaV15ChatPromptBuilder
     else:
         prompt_builder_fn = PurePromptBuilder
-
-    if cfg.load_adapter_checkpoint is not None:
-        # with open(run_dir / "latest_checkpoint_step.txt", "r") as f:
-        #     resume_iteration = int(f.read())
-        # start_gradient_step_idx = resume_iteration + 1
-        # print(f"Resuming training from iteration {resume_iteration} ...")
-
-        dataset_statistics_path = os.path.join(cfg.load_adapter_checkpoint, "dataset_statistics.json")  # HACK: overwrite dataset_statistics
-        if os.path.isfile(dataset_statistics_path):
-            with open(dataset_statistics_path, "r") as f:
-                norm_stats = json.load(f)
-            model.norm_stats = norm_stats
-            cprint(f"Loaded dataset statistics from {dataset_statistics_path}", "green")
-
-        # Load Model Weights
-        model = PeftModel.from_pretrained(model, cfg.load_adapter_checkpoint, is_trainable=False)
-        model.merge_and_unload()    # accelerate inference
-        model.print_trainable_parameters()
-        cprint(f"Loaded adapter weights from {cfg.load_adapter_checkpoint}", "green")
-
-    # [OpenVLA] Check that the model contains the action un-normalization key
-    if cfg.model_family == "openvla":
-        # In some cases, the key must be manually modified (e.g. after training on a modified version of the dataset
-        # with the suffix "_no_noops" in the dataset name)
-        if cfg.unnorm_key not in model.norm_stats and f"{cfg.unnorm_key}_no_noops" in model.norm_stats:
-            cfg.unnorm_key = f"{cfg.unnorm_key}_no_noops"
-        assert cfg.unnorm_key in model.norm_stats, f"Action un-norm key: {cfg.unnorm_key} not found in VLA `norm_stats`: {model.norm_stats.keys()}! (Please check dataset_statistics.json)"
-
-    # [OpenVLA] Get Hugging Face processor
-    processor = None
-    if cfg.model_family == "openvla":
-        processor = get_processor(cfg)
 
     # Initialize local logging
     # max_pet_name_len = len("openvla-7b")
@@ -209,19 +322,21 @@ def eval_libero(cfg: GenerateConfig) -> None:
     pre_thought = None
     
     # Reset environments
-    obs, _ = envs.reset()
+    obs, infos = envs.reset()
         
     while True:
         # Batch inference
-        with torch.no_grad(), timer.timer("model_inference"):
-            pixel_values = obs["pixel_values"]
-            prompts = obs["prompts"]
-
+        # with torch.no_grad(), timer.timer("model_inference"):
+        #     pixel_values = obs["pixel_values"]
+        #     prompts = obs["prompts"]
+        #     actions, _, _ = get_actions(cfg, model, obs=pixel_values, task_label=prompts, pre_thought=None, processor=processor, prompt_builder_fn=prompt_builder_fn)
+        
+        with timer.timer("model_inference"):
             generation_start_time = time.time()
-            # actions, _, _ = get_actions(cfg, model, obs=pixel_values, task_label=prompts, pre_thought=None, processor=processor, prompt_builder_fn=prompt_builder_fn)
-            actions, _, _ = get_actions_batch(cfg, model, obs=pixel_values, task_label=prompts, pre_thought=None, processor=processor, prompt_builder_fn=prompt_builder_fn)
+            param_prompt_Q.put(obs)
+            actions = response_ids_Q.get()
             print(f"🔥🔥🔥 Action generation time: {time.time() - generation_start_time:.2f} seconds")
-
+        
         # Step environments
         with timer.timer("env_step"):
             next_obs, rewards, dones, infos = envs.step(actions)
@@ -265,6 +380,13 @@ def eval_libero(cfg: GenerateConfig) -> None:
     log_file.close()
     timer.close()
     envs.close()
+    
+    # Cleanup vLLM thread
+    param_prompt_Q.put(None)  # Signal thread to stop
+    thread.join()  # Wait for thread to finish
+    
+    ray.shutdown()
+
     cprint("Evaluation complete!", "green")
 
 

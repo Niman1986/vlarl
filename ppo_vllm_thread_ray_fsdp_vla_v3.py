@@ -1220,14 +1220,14 @@ class PolicyTrainerRayProcess(RayProcess):
                         logger.info(f"Value time: {time.time() - start_time} seconds")
 
                         # TODO: Argh... this is redundant with vllm logprobs. Try to remove it.
-                        start_time = time.time()
-                        with timer.timer("forward"):
-                            logprob, logits = forward(
-                                self.model, query_response, pixel_value, response,
-                                args.pad_token_id, context_length, args.temperature
-                            )
-                        torch.cuda.empty_cache()
-                        logger.info(f"Forward time: {time.time() - start_time} seconds")
+                        # start_time = time.time()
+                        # with timer.timer("forward"):
+                        #     logprob, logits = forward(
+                        #         self.model, query_response, pixel_value, response,
+                        #         args.pad_token_id, context_length, args.temperature
+                        #     )
+                        # torch.cuda.empty_cache()
+                        # logger.info(f"Forward time: {time.time() - start_time} seconds")
                         # breakpoint()
 
                         # Compute a score using the reward model
@@ -1238,7 +1238,7 @@ class PolicyTrainerRayProcess(RayProcess):
                         #     score += processed_score
                         
                         # Accumulate rollout data
-                        logprobs[step, i : i + args.local_rollout_forward_batch_size] = logprob
+                        # logprobs[step, i : i + args.local_rollout_forward_batch_size] = logprob
                         # scores[step, i : i + args.local_rollout_forward_batch_size] = score
                         values[step, i : i + args.local_rollout_forward_batch_size] = value
 
@@ -1252,7 +1252,11 @@ class PolicyTrainerRayProcess(RayProcess):
                 }
                 logger.info(f"🕹️🕹️🕹️ Env {step=}")
                 with timer.timer("env_step"):
-                    local_obs, local_rewards, local_dones, local_infos = train_envs.step(local_actions, values=values[step].detach().cpu().numpy(), log_probs=logprobs[step].detach().cpu().numpy())
+                    local_obs, local_rewards, local_dones, local_infos = train_envs.step(
+                        local_actions, 
+                        values=values[step].detach().cpu().numpy(), 
+                        log_probs=vllm_logprobs[step].detach().cpu().numpy()
+                    )
                 processed_obs = process_with_padding_side(processor, local_obs["prompts"], local_obs["pixel_values"], padding=True, padding_side=padding_side).to(device, dtype=torch.float32)
                 local_token_obs["input_ids"][:, :processed_obs["input_ids"].shape[1]] = processed_obs["input_ids"]
                 local_token_obs["input_ids"] = add_special_token(local_token_obs["input_ids"], pad_token_id=args.pad_token_id)
@@ -1292,8 +1296,8 @@ class PolicyTrainerRayProcess(RayProcess):
                 del local_token_obs
                 torch.cuda.empty_cache()
 
-            if args.debug:
-                continue
+            # if args.debug:
+            #     continue
 
             # logger.info('gae')
             # compute advantages and returns
@@ -1361,7 +1365,7 @@ class PolicyTrainerRayProcess(RayProcess):
                             mb_responses = b_responses[micro_batch_inds]
                             mb_queries = b_queries[micro_batch_inds]
                             mb_pixel_values = b_pixel_values[micro_batch_inds]
-                            mb_logprobs = b_logprobs[micro_batch_inds]
+                            # mb_logprobs = b_logprobs[micro_batch_inds]
                             mb_return = b_returns[micro_batch_inds]
                             mb_values = b_values[micro_batch_inds]
 
@@ -1406,8 +1410,13 @@ class PolicyTrainerRayProcess(RayProcess):
                                     self.model, mb_query_responses, mb_pixel_values, mb_responses, 
                                     args.pad_token_id, context_length, args.temperature
                                 )
-                                
+                                if epoch_idx == 0:
+                                    # This can avoid additional forward pass in the rollout phase to get old logprobs. 
+                                    # See the following blog post for more details:
+                                    # https://costa.sh/blog-understanding-why-there-isn't-a-log-probability-in-trpo-and-ppo's-objective
+                                    b_logprobs[micro_batch_inds] = new_logprobs.detach()
                                 # NOTE: action logprobs = sum(logprobs)
+                                mb_logprobs = b_logprobs[micro_batch_inds]  # old logprobs
                                 new_logprobs = torch.sum(new_logprobs, dim=-1)
                                 mb_logprobs = torch.sum(mb_logprobs, dim=-1)
                                 logprobs_diff = new_logprobs - mb_logprobs

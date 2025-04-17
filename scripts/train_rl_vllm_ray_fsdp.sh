@@ -1,13 +1,12 @@
 #!/bin/bash
-# Usage: bash train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
-# Example: bash train_rl_vllm_ray_fsdp.sh 2,3,4,5,6,7 0,1,2,3,4,5,6,7,8,9
-# Expectation: more than 2 GPUs; 6 GPUs for RTX 3090s backward, but the second broadcast will oom
+# Usage: bash scripts/train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
+# Example: bash scripts/train_rl_vllm_ray_fsdp.sh 2,3,4,5,6,7 0,1,2,3,4,5,6,7,8,9
+# Expectation: more than 2 A100 GPUs; 6 GPUs for RTX 3090s backward, but the second broadcast will oom
 # Explanation:
 # Rollout phase: num_envs = local_rollout_batch_size * world_size
 # e.g. 2 GPUs, local_rollout_batch_size = 1, num_envs = 1 * 2 = 2
 # Training phase: num_mini_batches = local_rollout_batch_size * num_steps / local_mini_batch_size
 # e.g. 2 GPUs, local_rollout_batch_size = 1, num_steps = 128, local_mini_batch_size = 8, num_mini_batches = 1 * 128 / 8 = 16
-# NOTE: we currently do not support deepspeed stage other than 3 due to the memory issue:https://github.com/deepspeedai/DeepSpeed/issues/4856
 # ================================
 
 # export NCCL_P2P_DISABLE=1

@@ -1,13 +1,6 @@
 #!/bin/bash
-# Usage: bash train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
-# Example: bash train_rl_vllm_ray_fsdp.sh 2,3,4,5,6,7 0,1,2,3,4,5,6,7,8,9
-# Expectation: more than 2 GPUs; 6 GPUs for RTX 3090s backward, but the second broadcast will oom
-# Explanation:
-# Rollout phase: num_envs = local_rollout_batch_size * world_size
-# e.g. 2 GPUs, local_rollout_batch_size = 1, num_envs = 1 * 2 = 2
-# Training phase: num_mini_batches = local_rollout_batch_size * num_steps / local_mini_batch_size
-# e.g. 2 GPUs, local_rollout_batch_size = 1, num_steps = 128, local_mini_batch_size = 8, num_mini_batches = 1 * 128 / 8 = 16
-# NOTE: we currently do not support deepspeed stage other than 3 due to the memory issue:https://github.com/deepspeedai/DeepSpeed/issues/4856
+# Usage: bash scripts/train_rl_vllm_ray_fsdp_mini.sh <gpus> <task_ids>
+# Example: bash scripts/train_rl_vllm_ray_fsdp_mini.sh 2,3,4,5,6,7 0,1,2,3,4,5,6,7,8,9
 # ================================
 
 # export NCCL_P2P_DISABLE=1
@@ -64,7 +57,7 @@ CUDA_VISIBLE_DEVICES=$GPUS python \
     --learning_rate 2e-6 \
     --value_learning_rate 5e-4 \
     --max_grad_norm 1.0 \
-    --num_steps 16 \
+    --num_steps 128 \
     --max_env_length 128 \
     --total_episodes 100000 \
     --vllm_tensor_parallel_size 1 \
@@ -79,7 +72,7 @@ CUDA_VISIBLE_DEVICES=$GPUS python \
     --value_model_type "vla" \
     --value_use_lora False \
     --norm_adv True \
-    --save_freq 1 \
+    --save_freq 10000 \
     --save_video True \
     --use_wandb False \
     --wandb_offline False \

